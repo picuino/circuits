@@ -35,7 +35,7 @@ class TextElm extends GraphicElm {
 	text = "hello";
 	lines = new Vector<String>();
 	lines.add(text);
-	size = 24;
+	size = 12;
     }
     public TextElm(int xa, int ya, int xb, int yb, int f,
 		   StringTokenizer st) {
