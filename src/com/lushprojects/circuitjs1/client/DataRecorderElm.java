@@ -108,7 +108,7 @@ public class DataRecorderElm extends CircuitElm {
                 String url=getBlobUrl(dataStr);
                 Date date = new Date();
                 DateTimeFormat dtf = DateTimeFormat.getFormat("yyyyMMdd-HHmm");
-                String fname = "data-"+ dtf.format(date) + ".circuitjs.txt";
+                String fname = "data-"+ dtf.format(date) + ".txt";
                 Anchor a=new Anchor(fname, url);
                 a.getElement().setAttribute("Download", fname);
                 ei.widget = a;

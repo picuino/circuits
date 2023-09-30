@@ -328,8 +328,8 @@ MouseOutHandler, MouseWheelHandler {
     	height = Math.max(height, 0);
     	
 		if (cv != null) {
-			cv.setWidth(width + "PX");
-			cv.setHeight(height + "PX");
+			cv.setWidth(width + "px");
+			cv.setHeight(height + "px");
 			canvasWidth = width;
 			canvasHeight = height;
 			float scale = devicePixelRatio();

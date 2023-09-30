@@ -167,7 +167,7 @@ public class AudioOutputElm extends CircuitElm {
                     return null;
                 Date date = new Date();
                 DateTimeFormat dtf = DateTimeFormat.getFormat("yyyyMMdd-HHmm");
-                String fname = "audio-"+ dtf.format(date) + ".circuitjs.wav";
+                String fname = "audio-"+ dtf.format(date) + ".wav";
                 Anchor a=new Anchor(Locale.LS("Download last played audio"), url);
                 a.getElement().setAttribute("Download", fname);
                 ei.widget = a;

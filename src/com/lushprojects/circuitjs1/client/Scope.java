@@ -260,11 +260,11 @@ class Scope {
     	scale = new double[UNITS_COUNT];
     	reduceRange = new boolean[UNITS_COUNT];
     	
-    	rect = new Rectangle(0, 0, 1, 1);
-   	imageCanvas=Canvas.createIfSupported();
-   	imageContext=imageCanvas.getContext2d();
-	allocImage();
-    	initialize();
+		rect = new Rectangle(0, 0, 1, 1);
+		imageCanvas=Canvas.createIfSupported();
+		imageContext=imageCanvas.getContext2d();
+		allocImage();
+		initialize();
     }
     
     void showCurrent(boolean b) {
@@ -416,7 +416,7 @@ class Scope {
     
     int getWidth() { return rect.width; }
     
-    int rightEdge() { return rect.x+rect.width; }
+    int rightEdge() { return rect.x + rect.width; }
 	
     void setElm(CircuitElm ce) {
 	plots = new Vector<ScopePlot>();
@@ -609,7 +609,7 @@ class Scope {
 
     double calc2dGridPx(int width, int height) {
 	int m = width<height?width:height;
-	return ((double)(m)/2)/((double)(manDivisions)/2+0.05);
+	return ((double)(m)/2)/((double)(manDivisions)/2+0.02);
 	
     }
     
@@ -808,7 +808,6 @@ class Scope {
     	}
     	
     	g.context.drawImage(imageContext.getCanvas(), 0.0, 0.0);
-//    	g.drawImage(image, r.x, r.y, null);
     	g.setColor(CircuitElm.whiteColor);
     	g.fillOval(draw_ox-2, draw_oy-2, 5, 5);
     	// Axis
@@ -1460,8 +1459,6 @@ class Scope {
     		}
     		textY += 15;
     	    }
-
-	
     }
     
     void drawAverage(Graphics g) {
@@ -1999,8 +1996,8 @@ class Scope {
     
     void allocImage() {
 	if (imageCanvas != null) {
-	    imageCanvas.setWidth(rect.width + "PX");
-	    imageCanvas.setHeight(rect.height + "PX");
+	    imageCanvas.setWidth(rect.width + "px");
+	    imageCanvas.setHeight(rect.height + "px");
 	    imageCanvas.setCoordinateSpaceWidth(rect.width);
 	    imageCanvas.setCoordinateSpaceHeight(rect.height);
 	    clear2dView();

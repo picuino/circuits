@@ -88,7 +88,7 @@ public class ExportAsLocalFileDialog extends Dialog implements ValueChangeHandle
 		    fname = lastFileName;
 		else {
 		    DateTimeFormat dtf = DateTimeFormat.getFormat("yyyyMMdd-HHmm");
-		    fname = "circuit-"+ dtf.format(date) + ".circuitjs.txt";
+		    fname = "circuit-"+ dtf.format(date) + ".txt";
 		}
 		textBox.setText(fname);
 		
