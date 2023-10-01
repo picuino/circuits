@@ -93,6 +93,7 @@ diodevar.txt Diode
 diodecurve.txt Diode I/V Curve
 rectify.txt Half-Wave Rectifier
 fullrect.txt Full-Wave Rectifier
+fullrect2.txt Full-Wave Rectifier Version 2
 fullrectf.txt Full-Wave Rectifier w/ Filter
 diodelimit.txt Diode Limiter
 +Zener Diodes
@@ -102,6 +103,8 @@ zenerreffollow.txt Voltage Reference w/ Follower
 -
 dcrestoration.txt DC Restoration
 inductkick-block.txt Blocking Inductive Kickback
+diode-freewheel.txt Free-Wheel Diode
+diode-flyback.txt Flyback Diode
 spikegen.txt Spike Generator
 +Voltage Multipliers
 voltdouble.txt Voltage Doubler

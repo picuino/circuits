@@ -113,7 +113,6 @@ MouseOutHandler, MouseWheelHandler {
     MenuItem aboutItem;
     MenuItem importFromLocalFileItem, importFromTextItem, exportAsUrlItem, exportAsLocalFileItem, exportAsTextItem,
             printItem, recoverItem, saveFileItem;
-    MenuItem importFromDropboxItem;
     MenuItem undoItem, redoItem, cutItem, copyItem, pasteItem, selectAllItem, optionsItem;
     MenuBar optionsMenuBar;
     CheckboxMenuItem dotsCheckItem;
@@ -470,8 +469,6 @@ MouseOutHandler, MouseWheelHandler {
 	fileMenuBar.addItem(importFromLocalFileItem);
 	importFromTextItem = iconMenuItem("doc-text", "Import From Text...", new MyCommand("file","importfromtext"));
 	fileMenuBar.addItem(importFromTextItem);
-	importFromDropboxItem = iconMenuItem("dropbox", "Import From Dropbox...", new MyCommand("file", "importfromdropbox"));
-	fileMenuBar.addItem(importFromDropboxItem);
 	if (isElectron()) {
 	    saveFileItem = fileMenuBar.addItem(menuItemWithShortcut("floppy", "Save", Locale.LS(ctrlMetaKey + "S"),
 		    new MyCommand("file", "save")));
@@ -809,8 +806,6 @@ MouseOutHandler, MouseWheelHandler {
 	    if (stopMessage == null && startCircuitLink!=null) {
 		readCircuit("");
 		getSetupList(false);
-		ImportFromDropboxDialog.setSim(this);
-		ImportFromDropboxDialog.doImportDropboxLink(startCircuitLink, false);
 	    } else {
 		readCircuit("");
 		if (stopMessage == null && startCircuit != null) {
@@ -3244,9 +3239,6 @@ MouseOutHandler, MouseWheelHandler {
     	    electronSaveAs(dumpCircuit());
     	if (item=="importfromtext") {
     		dialogShowing = new ImportFromTextDialog(this);
-    	}
-    	if (item=="importfromdropbox") {
-    		dialogShowing = new ImportFromDropboxDialog(this);
     	}
     	if (item=="exportasurl") {
     		doExportAsUrl();
