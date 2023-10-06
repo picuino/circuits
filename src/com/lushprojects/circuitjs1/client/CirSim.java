@@ -4085,8 +4085,7 @@ MouseOutHandler, MouseWheelHandler {
 		se.toggle();
 		if (se.momentary)
 		    heldSwitchElm = se;
-		if (!(se instanceof LogicInputElm))
-		    needAnalyze();
+		needAnalyze();
 		return true;
 	}
 

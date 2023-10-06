@@ -43,7 +43,7 @@ package com.lushprojects.circuitjs1.client;
 		posCount = 3;
 	}
 	boolean isTernary() { return (flags & FLAG_TERNARY) != 0; }
-	boolean isNumeric() { return (flags & (FLAG_TERNARY|FLAG_NUMERIC)) != 0; }
+	boolean isNumeric() { return (flags & FLAG_NUMERIC) != 0; }
 	int getDumpType() { return 'L'; }
 	String dump() {
 	    return super.dump() + " " + hiV + " " + loV;
@@ -53,14 +53,26 @@ package com.lushprojects.circuitjs1.client;
 	    super.setPoints();
 	    lead1 = interpPoint(point1, point2, 1-12/dn);
 	}
+
+    String positionName() {
+	    if (isNumeric()) {
+            if (position == 0) return "0";
+            else if (position == 1) return "1";
+            else return "Z";
+        }
+        else {
+            if (position == 0) return "L";
+            else if (position == 1) return "H";
+            else return "Z";
+        }  
+    }
+
 	void draw(Graphics g) {
 	    g.save();
 	    Font f = new Font("SansSerif", Font.BOLD, 20);
 	    g.setFont(f);
 	    g.setColor(needsHighlight() ? selectColor : whiteColor);
-	    String s = position == 0 ? "L" : "H";
-	    if (isNumeric())
-		s = "" + position;
+	    String s = positionName();
 	    setBbox(point1, lead1, 0);
 	    drawCenteredText(g, s, x2, y2, true);
 	    setVoltageColor(g, volts[0]);
@@ -76,31 +88,43 @@ package com.lushprojects.circuitjs1.client;
 	}	
 
 	void setCurrent(int vs, double c) { current = c; }
-	void calculateCurrent() {}
+	void calculateCurrent() {
+        if (position == 2)
+            current = 0;
+    }
 	void stamp() {
-	    sim.stampVoltageSource(0, nodes[0], voltSource);
+        if (position == 0 || position == 1)
+	        sim.stampVoltageSource(0, nodes[0], voltSource);
 	}
 	
 	boolean isWireEquivalent() { return false; }
 	boolean isRemovableWire() { return false; }
 
 	void doStep() {
-	    double v = (position == 0) ? loV : hiV;
-	    if (isTernary())
-		v = loV + position * (hiV-loV) * .5;
-	    sim.updateVoltageSource(0, nodes[0], voltSource, v);
+	    double v = 0;
+        if (position == 0) v = loV;
+        else if (position == 1) v = hiV;
+        if (position == 0 || position == 1)
+	        sim.updateVoltageSource(0, nodes[0], voltSource, v);
 	}
-	int getVoltageSourceCount() { return 1; }
+	int getVoltageSourceCount() {
+        if (position == 0 || position == 1)
+            return 1;
+        else
+            return 0;
+    }
 	double getVoltageDiff() { return volts[0]; }
 	void getInfo(String arr[]) {
 	    arr[0] = "logic input";
-	    arr[1] = (position == 0) ? "low" : "high";
-	    if (isNumeric())
-		arr[1] = "" + position;
-	    arr[1] += " (" + getVoltageText(volts[0]) + ")";
+	    arr[1] = positionName() + " (" + getVoltageText(volts[0]) + ")";
 	    arr[2] = "I = " + getCurrentText(getCurrent());
 	} 
-	boolean hasGroundConnection(int n1) { return true; }
+	boolean hasGroundConnection(int n1) {
+        if (position == 0 || position == 1)
+            return true;
+        else
+            return false;
+    }
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0) {
 		EditInfo ei = new EditInfo("", 0, 0, 0);
