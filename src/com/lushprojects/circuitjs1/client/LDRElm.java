@@ -12,7 +12,7 @@ import com.google.gwt.event.dom.client.MouseWheelHandler;
 class LDRElm extends CircuitElm implements Command, MouseWheelHandler {
     double position; //of the slider 0.005 to 0.995
     double resistance; //based upon slider position
-    double minLux, maxLux;
+    double minLux, maxLux, minR, maxR;
     double lux;
 
     Scrollbar slider; 
@@ -23,9 +23,11 @@ class LDRElm extends CircuitElm implements Command, MouseWheelHandler {
     public LDRElm(int xx, int yy) {
 	super(xx, yy);
 	//setup();
-	minLux = 0.1; //dark
-	maxLux = 10000; // sunlight
-	position = .34; 
+	minLux = Math.log10(0.01); //dark
+	maxLux = Math.log10(10000); // sunlight
+    minR = Math.log10(1000);
+    maxR = Math.log10(1000000);
+	position = .50; 
 
 	lux = LuxFromSliderPos();
 	resistance = calcResistance(lux); 
@@ -37,8 +39,10 @@ class LDRElm extends CircuitElm implements Command, MouseWheelHandler {
     public LDRElm(int xa, int ya, int xb, int yb, int f,
 	    StringTokenizer st) {
 	super(xa, ya, xb, yb, f);
-	minLux = 0.1; //dark
-	maxLux = 10000; // sunlight
+	minLux = Math.log10(0.01); //dark
+	maxLux = Math.log10(10000); // sunlight
+    minR = Math.log10(1000);
+    maxR = Math.log10(1000000);
 	position = new Double(st.nextToken()).doubleValue();
 	lux = LuxFromSliderPos();
 	resistance = calcResistance(lux); 
@@ -79,7 +83,7 @@ class LDRElm extends CircuitElm implements Command, MouseWheelHandler {
     void setPoints() {
 	super.setPoints();
 	calcLeads(32);
-	position = slider.getValue()*.0099+.0001;
+	position = slider.getValue();
 	lux = LuxFromSliderPos();
 	resistance = calcResistance(lux); 
 	ps3 = new Point();
@@ -192,20 +196,14 @@ class LDRElm extends CircuitElm implements Command, MouseWheelHandler {
 
     double calcResistance(double lux) //knowing the lux
     {
-	//double loglux = Math.log10(lux);
-	//double slope = -1.4;
-	//double intercept = 7.1;
-	//double logR = 	(loglux-intercept)/slope;
-
-	//return Math.round(Math.pow(10, logR));
-	double r = (maxLux-lux+1)*10;
-
-	r = Math.round(r);
-	return r;
+        double r = maxR - (lux-minLux)*(maxR-minR)/(maxLux-minLux) ;
+        r = Math.round(Math.pow(10, r));
+	    return r;
     }
+    
     double LuxFromSliderPos() //knowing slider position etc
     {
-	return maxLux * position + minLux ;
+	    return minLux + (maxLux - minLux)*(0.01*position);
     }
 
 }
