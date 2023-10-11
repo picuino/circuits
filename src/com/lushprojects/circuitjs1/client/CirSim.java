@@ -1231,7 +1231,7 @@ MouseOutHandler, MouseWheelHandler {
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+Locale.LS("&nbsp;</div>Drag")), otherMenuBar);
 
     	mainMenuBar.addItem(mi=getClassCheckItem(Locale.LS("Select/Drag Sel"), "Select"));
-    	mi.setShortcut(Locale.LS("(space or Shift-drag)"));
+    	mi.setShortcut(Locale.LS("(space)"));
     }
     
     void composeSubcircuitMenu() {
