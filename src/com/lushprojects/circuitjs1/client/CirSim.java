@@ -485,7 +485,6 @@ MouseOutHandler, MouseWheelHandler {
 	fileMenuBar.addItem(exportAsTextItem);
 	fileMenuBar.addItem(iconMenuItem("export", "Export As Image...", new MyCommand("file","exportasimage")));
 	fileMenuBar.addItem(iconMenuItem("export", "Export As SVG...", new MyCommand("file","exportassvg")));
-	fileMenuBar.addItem(iconMenuItem("microchip", "Create Subcircuit...", new MyCommand("file","createsubcircuit")));
 	fileMenuBar.addItem(iconMenuItem("magic", "Find DC Operating Point", new MyCommand("file", "dcanalysis")));
 	recoverItem = iconMenuItem("back-in-time", "Recover Auto-Save", new MyCommand("file","recover"));
 	recoverItem.setEnabled(recovery != null);
@@ -542,7 +541,6 @@ MouseOutHandler, MouseWheelHandler {
 	m.addSeparator();
 	m.addItem(selectAllItem = menuItemWithShortcut("select-all", "Select All", Locale.LS(ctrlMetaKey + "A"), new MyCommand("edit","selectAll")));
 	m.addSeparator();
-	m.addItem(menuItemWithShortcut("search", "Find Component...", "/", new MyCommand("edit", "search")));
 	m.addItem(iconMenuItem("target", weAreInUS(false) ? "Center Circuit" : "Centre Circuit", new MyCommand("edit", "centrecircuit")));
 	m.addItem(menuItemWithShortcut("zoom-11", "Zoom 100%", "0", new MyCommand("zoom", "zoom100")));
 	m.addItem(menuItemWithShortcut("zoom-in", "Zoom In", "+", new MyCommand("zoom", "zoomin")));
@@ -1057,9 +1055,9 @@ MouseOutHandler, MouseWheelHandler {
     
     // this is called twice, once for the Draw menu, once for the right mouse popup menu
     public void composeMainMenu(MenuBar mainMenuBar, int num) {
-    	mainMenuBar.addItem(getClassCheckItem(Locale.LS("Add Wire"), "WireElm"));
-    	mainMenuBar.addItem(getClassCheckItem(Locale.LS("Add Resistor"), "ResistorElm"));
-    	mainMenuBar.addItem(getClassCheckItem(Locale.LS("Add Subcircuit Instance"), "CustomCompositeElm"));
+
+    	mainMenuBar.addItem(menuItemWithShortcut("search", "Find Component...", "/", new MyCommand("edit", "search")));
+		mainMenuBar.addItem(getClassCheckItem(Locale.LS("Add Wire"), "WireElm"));
 
     	MenuBar inputMenuBar = new MenuBar(true);
     	inputMenuBar.addItem(getClassCheckItem(Locale.LS("Add Ground"), "GroundElm"));
@@ -1082,6 +1080,7 @@ MouseOutHandler, MouseWheelHandler {
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+Locale.LS("&nbsp;</div>Sources")), inputMenuBar);
     	
     	MenuBar passMenuBar = new MenuBar(true);
+		passMenuBar.addItem(getClassCheckItem(Locale.LS("Add Resistor"), "ResistorElm"));
     	passMenuBar.addItem(getClassCheckItem(Locale.LS("Add Capacitor"), "CapacitorElm"));
     	passMenuBar.addItem(getClassCheckItem(Locale.LS("Add Capacitor (polarized)"), "PolarCapacitorElm"));
     	passMenuBar.addItem(getClassCheckItem(Locale.LS("Add Inductor"), "InductorElm"));
@@ -1108,7 +1107,6 @@ MouseOutHandler, MouseWheelHandler {
     	outputMenuBar.addItem(getClassCheckItem(Locale.LS("Add Analog Output"), "OutputElm"));
     	outputMenuBar.addItem(getClassCheckItem(Locale.LS("Add LED"), "LEDElm"));
     	outputMenuBar.addItem(getClassCheckItem(Locale.LS("Add Lamp"), "LampElm"));
-    	outputMenuBar.addItem(getClassCheckItem(Locale.LS("Add Labeled Node"), "LabeledNodeElm"));
     	outputMenuBar.addItem(getClassCheckItem(Locale.LS("Add Decimal Display"), "DecimalDisplayElm"));
     	outputMenuBar.addItem(getClassCheckItem(Locale.LS("Add Data Export"), "DataRecorderElm"));
     	outputMenuBar.addItem(getClassCheckItem(Locale.LS("Add Audio Output"), "AudioOutputElm"));
@@ -1216,7 +1214,7 @@ MouseOutHandler, MouseWheelHandler {
     	    subcircuitMenuBar = new MenuBar[2];
     	subcircuitMenuBar[num] = new MenuBar(true);
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+Locale.LS("&nbsp;</div>Subcircuits")), subcircuitMenuBar[num]);
-    	
+
     	MenuBar otherMenuBar = new MenuBar(true);
     	CheckboxMenuItem mi;
     	otherMenuBar.addItem(mi=getClassCheckItem(Locale.LS("Drag All"), "DragAll"));
@@ -1238,12 +1236,17 @@ MouseOutHandler, MouseWheelHandler {
 	if (subcircuitMenuBar == null)
 	    return;
 	int mi;
-	
+
 	// there are two menus to update: the one in the Draw menu, and the one in the right mouse menu
 	for (mi = 0; mi != 2; mi++) {
 	    MenuBar menu = subcircuitMenuBar[mi];
 	    menu.clearItems();
-	    Vector<CustomCompositeModel> list = CustomCompositeModel.getModelList();
+
+		menu.addItem(getClassCheckItem(Locale.LS("Add Labeled Node"), "LabeledNodeElm"));
+		menu.addItem(iconMenuItem("microchip", "Create Subcircuit...", new MyCommand("file","createsubcircuit")));
+	    menu.addSeparator();
+
+        Vector<CustomCompositeModel> list = CustomCompositeModel.getModelList();
 	    int i;
 	    for (i = 0; i != list.size(); i++) {
 		String name = list.get(i).name;
