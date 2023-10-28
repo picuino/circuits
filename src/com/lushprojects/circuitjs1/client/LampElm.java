@@ -28,10 +28,10 @@ class LampElm extends CircuitElm {
 	public LampElm(int xx, int yy) {
 	    super(xx, yy);
 	    temp = roomTemp;
-	    nom_pow = 100;
-	    nom_v = 120;
-	    warmTime = .4;
-	    coolTime = .4;
+	    nom_pow = 1;
+	    nom_v = 5;
+	    warmTime = .020;
+	    coolTime = .020;
 	}
 	public LampElm(int xa, int ya, int xb, int yb, int f,
 		    StringTokenizer st) {
@@ -59,7 +59,7 @@ class LampElm extends CircuitElm {
 	    
 	    // make sure resistance is not 0 or NaN or current will be NaN before we have a chance
 	    // to call startIteration()
-	    resistance = 100;
+	    resistance = 2;
 	}
 	final int filament_len = 24;
 	void setPoints() {
@@ -137,7 +137,6 @@ class LampElm extends CircuitElm {
 	    current = (volts[0]-volts[1])/resistance;
 	    if (resistance == 0)
 		current = 0;
-//	    sim.console("lampcc " + current + " " + resistance);
 	}
 	void stamp() {
 	    sim.stampNonLinear(nodes[0]);
@@ -147,6 +146,7 @@ class LampElm extends CircuitElm {
 	void startIteration() {
 	    // based on http://www.intusoft.com/nlpdf/nl11.pdf
 	    double nom_r = nom_v*nom_v/nom_pow;
+        
 	    // this formula doesn't work for values over 5390
 	    double tp = (temp > 5390) ? 5390 : temp;
 	    resistance = nom_r*(1.26104 -
@@ -155,11 +155,9 @@ class LampElm extends CircuitElm {
 	    double cap = 1.57e-4*nom_pow;
 	    double capw = cap * warmTime/.4;
 	    double capc = cap * coolTime/.4;
-	    //System.out.println(nom_r + " " + (resistance/nom_r));
 	    temp += getPower()*sim.timeStep/capw;
 	    double cr = 2600/nom_pow;
 	    temp -= sim.timeStep*(temp-roomTemp)/(capc*cr);
-//	    sim.console("lampsi " + temp + " " + capc + " " + nom_pow);
 	}
 	void doStep() {
 	    sim.stampResistor(nodes[0], nodes[1], resistance);

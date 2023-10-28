@@ -11,36 +11,71 @@ class DCMotorElm extends CircuitElm {
     // Electrical parameters
     double resistance, inductance;
     // Electro-mechanical parameters
-    double K, Kb, J, b, gearRatio, tau; //tau reserved for static friction parameterization  
+    double K, Kb, J, friction, gearRatio, tau; //tau reserved for static friction parameterization  
     public double angle;
     public double speed;
-
 
 
     double coilCurrent;
     double inertiaCurrent;
     int[] voltSources = new int[2];
+
     public DCMotorElm(int xx, int yy) { 
 	super(xx, yy); 
 	ind = new Inductor(sim);
 	indInertia = new Inductor(sim);
-	inductance = .5; resistance = 1; angle = pi/2; speed = 0; K = 0.15; b= 0.05; J = 0.02; Kb = 0.15; gearRatio=1; tau=0;
+
+    DCMotorParam();
+    
+    gearRatio = 0.1; 
+    angle = pi/2;
+    speed = 0; 
+    tau = 0;
 	ind.setup(inductance, 0, Inductor.FLAG_BACK_EULER);
 	indInertia.setup(J, 0, Inductor.FLAG_BACK_EULER);
 
     }
+    
+    void DCMotorParam() {
+      double nominalSpeed = 15000/pi;     // Nominal speed [rpm]
+      nominalSpeed = nominalSpeed * 2 * pi / 60; // [rad/s]
+    
+      double nominalVoltage = 6;       // Nominal Voltage [V]
+      double nominalMecanicPower = 5;  // Nominal Mecanic Power [W]
+      double nominalEfficiency = 50;   // Nominal Efficiency [%]
+      double nominalEmptyPower = 1;    // Power mecanic consumption without load [W]
+      double nominalElectricTime = 0.1;  // L / R constant time [seconds]
+      double nominalMecanicTime = 0.5;   // Mecanic Start time [seconds]
+      
+      double nominalTorque = nominalMecanicPower / nominalSpeed;
+      if (nominalEfficiency < 10) nominalEfficiency = 10;
+      if (nominalEfficiency > 99) nominalEfficiency = 99;
+      double emfNominal = nominalVoltage * 0.01 * nominalEfficiency;
+      double nominalCurrent = nominalMecanicPower / emfNominal;
+      
+      resistance = (nominalVoltage - emfNominal) / nominalCurrent;
+      inductance = nominalElectricTime / resistance;
+      K = nominalTorque / nominalCurrent;
+      Kb = emfNominal / nominalSpeed;
+      J = nominalTorque * nominalMecanicTime / nominalSpeed; // Moment of inertia [Kg*m^2]
+      friction = nominalMecanicPower / (nominalSpeed * nominalSpeed);
+      
+      
+    }
+    
+    
     public DCMotorElm(int xa, int ya, int xb, int yb, int f,
 	    StringTokenizer st) {
 	super(xa, ya, xb, yb, f);
 	angle = pi/2;speed = 0;
 	//read:
-	// inductance; resistance, K, Kb, J, b, gearRatio, tau
+	// inductance; resistance, K, Kb, J, friction, gearRatio, tau
 	inductance = new Double(st.nextToken()).doubleValue();
 	resistance = new Double(st.nextToken()).doubleValue(); 
 	K = 		new Double(st.nextToken()).doubleValue();
 	Kb = 		new Double(st.nextToken()).doubleValue();
 	J = 		new Double(st.nextToken()).doubleValue();
-	b = 		new Double(st.nextToken()).doubleValue();
+	friction =  new Double(st.nextToken()).doubleValue();
 	gearRatio = new Double(st.nextToken()).doubleValue();
 	tau = 		new Double(st.nextToken()).doubleValue();
 
@@ -49,10 +84,11 @@ class DCMotorElm extends CircuitElm {
 	ind.setup(inductance, 0, Inductor.FLAG_BACK_EULER);
 	indInertia.setup(J, 0, Inductor.FLAG_BACK_EULER);
     }
+    
     int getDumpType() { return 415; }
     String dump() {
-	// dump: inductance; resistance, K, Kb, J, b, gearRatio, tau
-	return super.dump() + " " +  inductance + " " + resistance + " " + K + " " +  Kb + " " + J + " " + b + " " + gearRatio + " " + tau;
+	// dump: inductance; resistance, K, Kb, J, friction, gearRatio, tau
+	return super.dump() + " " +  inductance + " " + resistance + " " + K + " " +  Kb + " " + J + " " + friction + " " + gearRatio + " " + tau;
     }
     public double getAngle(){ return(angle);}
 
@@ -77,7 +113,8 @@ class DCMotorElm extends CircuitElm {
     }
 
     void stamp() {
-	// stamp a bunch of internal parts to help us simulate the motor.  It would be better to simulate this mini-circuit in code to reduce
+	// Stamp a bunch of internal parts to help us simulate the motor. 
+    // It would be better to simulate this mini-circuit in code to reduce
 	// the size of the matrix.
 	
 	//nodes[0] nodes [1] are the external nodes
@@ -93,7 +130,7 @@ class DCMotorElm extends CircuitElm {
 	// inertia inductor from internal nodes[4] to internal nodes[5]
 	indInertia.stamp(nodes[4], nodes[5]);
 	// resistor from  internal nodes[5] to  ground 
-	sim.stampResistor(nodes[5], 0, b);
+	sim.stampResistor(nodes[5], 0, friction);
 	// Voltage Source from  internal nodes[4] to ground
 	//System.out.println("doing stamp voltage");
 	sim.stampVoltageSource(nodes[4], 0, voltSources[1]); 
@@ -119,19 +156,17 @@ class DCMotorElm extends CircuitElm {
      */
 
     void doStep() {
-	sim.updateVoltageSource(nodes[4],0, voltSources[1],
-		coilCurrent*K);
-	sim.updateVoltageSource(nodes[3],nodes[1], voltSources[0],
-		inertiaCurrent*Kb);
+	sim.updateVoltageSource(nodes[4],0, voltSources[1],	coilCurrent*K);
+	sim.updateVoltageSource(nodes[3],nodes[1], voltSources[0], inertiaCurrent*Kb);
 	ind.doStep(volts[0]-volts[2]);
 	indInertia.doStep(volts[4]-volts[5]);
     }
     void calculateCurrent() {
 	coilCurrent = ind.calculateCurrent(volts[0]-volts[2]);
 	inertiaCurrent = indInertia.calculateCurrent(volts[4]-volts[5]);
-//	current = (volts[2]-volts[3])/resistance;
 	speed=inertiaCurrent;
     }
+
 //    public double getCurrent() { current = (volts[2]-volts[3])/resistance; return current; }
 
     void setCurrent(int vn, double c) {
@@ -160,17 +195,15 @@ class DCMotorElm extends CircuitElm {
 	g.setColor(cc);
 	interpPointFix(lead1, lead2, ps1, 0.5 + .28*Math.cos(angleAux*gearRatio), .28*Math.sin(angleAux*gearRatio));
 	interpPointFix(lead1, lead2, ps2, 0.5 - .28*Math.cos(angleAux*gearRatio), -.28*Math.sin(angleAux*gearRatio));
-
-	drawThickerLine(g, ps1, ps2);
-	interpPointFix(lead1, lead2, ps1, 0.5 + .28*Math.cos(angleAux*gearRatio+pi/3), .28*Math.sin(angleAux*gearRatio+pi/3));
-	interpPointFix(lead1, lead2, ps2, 0.5 - .28*Math.cos(angleAux*gearRatio+pi/3), -.28*Math.sin(angleAux*gearRatio+pi/3));
-
 	drawThickerLine(g, ps1, ps2);
 
-	interpPointFix(lead1, lead2, ps1, 0.5 + .28*Math.cos(angleAux*gearRatio+2*pi/3), .28*Math.sin(angleAux*gearRatio+2*pi/3));
-	interpPointFix(lead1, lead2, ps2, 0.5 - .28*Math.cos(angleAux*gearRatio+2*pi/3), -.28*Math.sin(angleAux*gearRatio+2*pi/3));
+	// interpPointFix(lead1, lead2, ps1, 0.5 + .28*Math.cos(angleAux*gearRatio+pi/3), .28*Math.sin(angleAux*gearRatio+pi/3));
+	// interpPointFix(lead1, lead2, ps2, 0.5 - .28*Math.cos(angleAux*gearRatio+pi/3), -.28*Math.sin(angleAux*gearRatio+pi/3));
+	// drawThickerLine(g, ps1, ps2);
 
-	drawThickerLine(g, ps1, ps2);
+	// interpPointFix(lead1, lead2, ps1, 0.5 + .28*Math.cos(angleAux*gearRatio+2*pi/3), .28*Math.sin(angleAux*gearRatio+2*pi/3));
+	// interpPointFix(lead1, lead2, ps2, 0.5 - .28*Math.cos(angleAux*gearRatio+2*pi/3), -.28*Math.sin(angleAux*gearRatio+2*pi/3));
+	// drawThickerLine(g, ps1, ps2);
 
 	drawPosts(g);
     }
@@ -205,15 +238,16 @@ class DCMotorElm extends CircuitElm {
 	if (n == 2)
 	    return new EditInfo("Torque constant (Nm/A)", K, 0, 0);
 	if (n == 3)
-	    return new EditInfo("Back emf constant (Vs/rad)", Kb, 0, 0);
+	    return new EditInfo("Back emf constant (V.s/rad)", Kb, 0, 0);
 	if (n == 4)
 	    return new EditInfo("Moment of inertia (Kg.m^2)", J, 0, 0);
 	if (n == 5)
-	    return new EditInfo("Friction coefficient (Nms/rad)", b, 0, 0);
+	    return new EditInfo("Friction coefficient (Nm.s/rad)", friction, 0, 0);
 	if (n == 6)
 	    return new EditInfo("Gear Ratio", gearRatio, 0, 0);
 	return null;
     }
+    
     public void setEditValue(int n, EditInfo ei) {
 
 	if (ei.value > 0 & n==0) {
@@ -231,7 +265,7 @@ class DCMotorElm extends CircuitElm {
             indInertia.setup(J, inertiaCurrent, Inductor.FLAG_BACK_EULER);
         }
 	if (ei.value > 0 & n==5)
-	    b = ei.value;
+	    friction = ei.value;
 	if (ei.value > 0 & n==6)
 	    gearRatio = ei.value;
     }
