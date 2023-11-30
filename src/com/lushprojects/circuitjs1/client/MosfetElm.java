@@ -247,8 +247,8 @@ class MosfetElm extends CircuitElm {
 	    interpPoint2(point1, point2, src[2], drn[2], 1-22/dn, -hs2*4/3);
 
 	    gate = newPointArray(3);
-	    interpPoint2(point1, point2, gate[0], gate[2], 1-28/dn, hs2/2); // was 1-20/dn
-	    interpPoint(gate[0], gate[2], gate[1], .5);
+	    interpPoint2(point1, point2, gate[0], gate[2], 1-28/dn, hs2*0.9); // was 1-20/dn
+	    interpPoint(gate[0], gate[2], gate[1], 0.5);
 
 	    if (showBulk()) {
 		body = newPointArray(2);
