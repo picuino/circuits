@@ -27,7 +27,7 @@ class LDRElm extends CircuitElm implements Command, MouseWheelHandler {
 	maxLux = Math.log10(10000); // sunlight
     minR = Math.log10(1000);
     maxR = Math.log10(1000000);
-	position = .50; 
+	position = 50; 
 
 	lux = LuxFromSliderPos();
 	resistance = calcResistance(lux); 
@@ -64,7 +64,7 @@ class LDRElm extends CircuitElm implements Command, MouseWheelHandler {
     void createSlider() {
 	sim.addWidgetToVerticalPanel(label = new Label(sliderText));
 	label.addStyleName("topSpace");
-	int value = (int) (position*100);
+	int value = (int) (position);
 	sim.addWidgetToVerticalPanel(slider = new Scrollbar(Scrollbar.HORIZONTAL, value, 1, 0, 101, this, this));
     }
 
