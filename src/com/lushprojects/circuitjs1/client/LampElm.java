@@ -30,8 +30,8 @@ class LampElm extends CircuitElm {
 	    temp = roomTemp;
 	    nom_pow = 1;
 	    nom_v = 5;
-	    warmTime = .020;
-	    coolTime = .020;
+	    warmTime = .010;
+	    coolTime = .010;
 	}
 	public LampElm(int xa, int ya, int xb, int yb, int f,
 		    StringTokenizer st) {
