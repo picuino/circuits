@@ -207,7 +207,7 @@
 "Add OTA (LM13700 style)"="Añadir Amplificador OTA (LM13700)"
 "Add Voltage-Controlled Current Source (VCCS)"="Añadir Fuente de corriente Controlada por Tensión"
 "Add Voltage-Controlled Voltage Source (VCVS)"="Añadir Fuente de Tensión Controlada por Tensión"
-"Add Ohmmeter"="Añadir Ohmmímetro"
+"Add Ohmmeter"="Añadir Ohmímetro"
 "Allpass"="Pasa todo"
 "Allpass w/ Square"="Pasa todo con Onda Cuadrada"
 "Alt Color for Volts & Pwr"="Colores Alternativas para Tensión y Potencia"
